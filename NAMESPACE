@@ -2,3 +2,6 @@
 
 export(sis_clean)
 export(sis_discretize)
+export(sis_format_comparison)
+export(sis_get_sister_pair)
+export(sis_get_sisters)

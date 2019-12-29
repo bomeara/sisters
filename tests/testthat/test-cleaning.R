@@ -18,3 +18,10 @@ test_that("Discretizing with NAs works", {
   expect_equal(result[2], 0)
   expect_equal(result[50],1)
 })
+
+
+test_that("Getting sisters works", {
+  phy <- ape::rcoal(15)
+  sisters <- sis_get_sisters(phy, ncores=1)
+  expect_equal(class(sisters), "data.frame")
+})
