@@ -95,6 +95,7 @@ sis_find_taxon <- function(taxon, sisters) {
 #'
 #' @param sisters Data.frame from sis_get_sisters()
 #' @param trait vector of 0/1 data
+#' @param phy A phylo object
 #' @return data.frame where each row is a sister group comparison.
 #' @export
 #' @examples
@@ -104,9 +105,9 @@ sis_find_taxon <- function(taxon, sisters) {
 #' traits <- cleaned$traits
 #' trait <- sis_discretize(traits[,1])
 #' sisters <- sis_get_sisters(phy)
-#' sisters_comparison <- sis_format_comparison(sisters, trait)
+#' sisters_comparison <- sis_format_comparison(sisters, trait, phy)
 #' print(sisters_comparison)
-sis_format_comparison <- function(sisters, trait) {
+sis_format_comparison <- function(sisters, trait, phy) {
   sisters$left.trait <- lapply(sisters$left, sis_get_trait_values, phy=phy, trait=trait)
   sisters$right.trait <- lapply(sisters$right, sis_get_trait_values, phy=phy, trait=trait)
   sisters$left.unique <- lapply(sisters$left.trait, sis_get_monomorphic)

@@ -4,12 +4,14 @@
 \alias{sis_format_comparison}
 \title{Get comparison format}
 \usage{
-sis_format_comparison(sisters, trait)
+sis_format_comparison(sisters, trait, phy)
 }
 \arguments{
 \item{sisters}{Data.frame from sis_get_sisters()}
 
 \item{trait}{vector of 0/1 data}
+
+\item{phy}{A phylo object}
 }
 \value{
 data.frame where each row is a sister group comparison.
@@ -24,6 +26,6 @@ phy <- cleaned$phy
 traits <- cleaned$traits
 trait <- sis_discretize(traits[,1])
 sisters <- sis_get_sisters(phy)
-sisters_comparison <- sis_format_comparison(sisters, trait)
+sisters_comparison <- sis_format_comparison(sisters, trait, phy)
 print(sisters_comparison)
 }

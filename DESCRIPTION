@@ -9,8 +9,16 @@ Authors@R:
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: What the package does (one paragraph).
 License: What license it uses
+Imports: 
+    ape,
+    geiger,
+    parallel,
+    pbapply,
+    phangorn
+Suggests: 
+    covr,
+    pkgdown,
+    testthat (>= 2.1.0)
 Encoding: UTF-8
 LazyData: true
-Suggests: 
-    testthat (>= 2.1.0)
 RoxygenNote: 7.0.2
