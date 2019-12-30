@@ -67,7 +67,7 @@ sis_get_sister_pair <- function(node, phy) {
 #' @return a data.frame with the node numbers and columns with the tip labels of the two descendant clades, plus additional info on the sister groups
 #' @export
 sis_get_sisters <- function(phy, ncores=parallel::detectCores()) {
-  result <- do.call(rbind.data.frame,parallel::mclapply(unique(phy$edge[,1]), sis_get_sister_pair, phy=phy, mc.cores=ncores))
+  result <- do.call(rbind.data.frame,pbapply::pblapply(unique(phy$edge[,1]), sis_get_sister_pair, phy=phy, cl=ncores))
   result$ntax.left <- sapply(result$left, length)
   result$ntax.right <- sapply(result$right, length)
   result$ntax.total <- result$ntax.left + result$ntax.right
@@ -126,6 +126,17 @@ sis_format_comparison <- function(sisters, trait) {
     }
   }
   return(sisters)
+}
+
+#' Get simplified comparison format suitable for passing into other functions
+#'
+#' @param sisters_comparison Data.frame from sis_format_comparison
+#' @return Data.frame of two columns: diversity with state 0 and state 1, where each row is a sister group comparison
+#' @export
+sis_format_simpified <- function(sisters_comparison) {
+  simplified <- data.frame(ntax.trait0 = sisters_comparison$ntax.trait0, ntax.trait1 = sisters_comparison$ntax.trait1)
+  simplified <- simplified[!is.na(simplified$ntax.trait0),]
+  return(simplified)
 }
 
 #' Get trait values for tip numbers
