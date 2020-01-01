@@ -1,4 +1,6 @@
 #' Try but returns NA rather than error
+#' @param code Code to run
+#' @param silent Print error if TRUE
 tryNA <- function(code, silent = FALSE) {
   tryCatch(code, error = function(c) {
     msg <- conditionMessage(c)
@@ -40,9 +42,9 @@ sis_test <- function(pairs, drop_matches=TRUE, warn=TRUE) {
     number.comparisons.trait0.bigger = length(which(pairs$ntax.trait0>pairs$ntax.trait1)),
     number.comparisons.trait1.bigger = length(which(pairs$ntax.trait1>pairs$ntax.trait0)),
     number.comparisons.trait0.equal.trait1 = equal_count,
-    median.proportion.in.state.zero = median(pairs$ntax.trait0/(pairs$ntax.trait0 + pairs$ntax.trait1)),
-    median.ntax.diff.zero.minus.one = median(pairs$ntax.trait0 - pairs$ntax.trait1),
-    pvalue.sign.test = min(1,2*(1-pbinom(length(which(pairs$ntax.trait0<pairs$ntax.trait1)), nrow(pairs), 0.5))),
+    median.proportion.in.state.zero = stats::median(pairs$ntax.trait0/(pairs$ntax.trait0 + pairs$ntax.trait1)),
+    median.ntax.diff.zero.minus.one = stats::median(pairs$ntax.trait0 - pairs$ntax.trait1),
+    pvalue.sign.test = min(1,2*(1-stats::pbinom(length(which(pairs$ntax.trait0<pairs$ntax.trait1)), nrow(pairs), 0.5))),
     pvalue.diversity.contrast.ratiolog = tryNA(ape::diversity.contrast.test(pairs, method = "ratiolog")),
     pvalue.diversity.contrast.proportion = tryNA(ape::diversity.contrast.test(pairs, method = "proportion")),
     pvalue.diversity.contrast.difference = tryNA(ape::diversity.contrast.test(pairs, method = "difference")),
@@ -75,7 +77,7 @@ sis_iterate_single_run <- function(cutoff, x, use_percentile=TRUE, phy, sisters=
   test["ntax0"] <- as.numeric(length(which(trait==0)))
   test["ntax1"] <- as.numeric(length(which(trait==1)))
   if(use_percentile) {
-    absolute_cutoff <- quantile(x, probs=cutoff, na.rm=TRUE)
+    absolute_cutoff <- stats::quantile(x, probs=cutoff, na.rm=TRUE)
   } else {
     absolute_cutoff <- cutoff
   }

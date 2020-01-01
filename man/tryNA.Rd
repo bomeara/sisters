@@ -6,6 +6,11 @@
 \usage{
 tryNA(code, silent = FALSE)
 }
+\arguments{
+\item{code}{Code to run}
+
+\item{silent}{Print error if TRUE}
+}
 \description{
 Try but returns NA rather than error
 }

@@ -93,11 +93,11 @@ PDmc <- Vectorize(function(d,m, lower.tail=TRUE) {
 SG.test <- function(dataset, lower.tail=FALSE, correct=FALSE) {
   pvalorg  <- (dataset$m-dataset$d)/(dataset$m-1)
   x2org <- -2*sum(log(pvalorg))
-  porg  <- pchisq(x2org, lower.tail=FALSE, df=2*length(pvalorg))
+  porg  <- stats::pchisq(x2org, lower.tail=FALSE, df=2*length(pvalorg))
   if (correct) {
     pvalcorr <- PDmc(d=dataset$d, m=dataset$m, lower.tail=lower.tail)
     x2corr <- -2*sum(log(pvalcorr))
-    pcorr <- pchisq(x2corr, lower.tail=FALSE, df=2*length(pvalcorr))
+    pcorr <- stats::pchisq(x2corr, lower.tail=FALSE, df=2*length(pvalcorr))
     result <- matrix(data=c(x2org, x2corr, porg, pcorr), nrow=2, byrow=FALSE)
     colnames(result) <- c("X2","p.value")
     rownames(result) <- c("Cladogenetic (Slowinski and Guyer)","Anagenetic (Käfer and Mousset)")
@@ -123,7 +123,7 @@ scc.test <- function(dataset, iter=10000, alternative="two.sided") {
   # resampling function to generate n simulated d/m values
   resample <- function(y, n=1) {
     f <- function() {
-           p <- runif(dim(y)[1]) < y[,2]
+           p <- stats::runif(dim(y)[1]) < y[,2]
            return(mean(c(y[p,1],1-y[!p,1])))
          }
     return(replicate(n=n, expr=f()))

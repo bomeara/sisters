@@ -14,7 +14,8 @@ Imports:
     geiger,
     parallel,
     pbapply,
-    phangorn
+    phangorn,
+    stats
 Suggests:
     covr,
     pkgdown,

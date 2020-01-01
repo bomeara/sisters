@@ -29,7 +29,7 @@ sis_clean <- function(phy, traits, first_col_names = FALSE) {
 #' @return a vector of 0 and 1 (and NAs)
 sis_discretize <- function(x, cutoff=0.5, use_percentile=TRUE) {
   if(use_percentile) {
-    absolute_cutoff <- quantile(x, probs=cutoff, na.rm=TRUE)
+    absolute_cutoff <- stats::quantile(x, probs=cutoff, na.rm=TRUE)
   } else {
     absolute_cutoff <- cutoff
   }
@@ -154,7 +154,7 @@ sis_get_trait_values <- function(nodes, phy, trait) {
 #' @param trait Vector of trait values
 #' @return The state all taxa have if monomorphic; NA otherwise
 sis_get_monomorphic <- function(trait) {
-  unique_state <- unique(na.omit(trait))
+  unique_state <- unique(stats::na.omit(trait))
   if(length(unique_state)!=length(unique(trait))) {
     warning("At least one taxon had an NA trait value. This was treated as having the same state as the other taxa in the clade if there was no other heterogeneity") #since in sis_format_comparison that taxon is included in the ntax count, but its NA state is not used here in seeing if the clade is monomorphic.
   }
