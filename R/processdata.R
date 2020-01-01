@@ -22,7 +22,7 @@ sis_clean <- function(phy, traits, first_col_names = FALSE) {
 #' There are two ways to do this: based on percentile or based on a numeric cutoff.
 #' By default, it will separate it based on the 50th percentile (cutoff of 0.5), but you can change the cutoff value and whether it is used as percentile or trait value.
 #'
-#' @param x Vector of trait values
+#' @param x Vector of continuous trait values
 #' @param cutoff Value to use as cutoff. If percentile, 0.3 = 30th percentile, etc.
 #' @param use_percentile If TRUE, use cutoff as percentile
 #' @export
@@ -154,7 +154,10 @@ sis_get_trait_values <- function(nodes, phy, trait) {
 #' @param trait Vector of trait values
 #' @return The state all taxa have if monomorphic; NA otherwise
 sis_get_monomorphic <- function(trait) {
-  unique_state <- unique(trait)
+  unique_state <- unique(na.omit(trait))
+  if(length(unique_state)!=length(unique(trait))) {
+    warning("At least one taxon had an NA trait value. This was treated as having the same state as the other taxa in the clade if there was no other heterogeneity") #since in sis_format_comparison that taxon is included in the ntax count, but its NA state is not used here in seeing if the clade is monomorphic.
+  }
   if(length(unique_state)==1) {
     return(unique_state)
   } else {

@@ -7,7 +7,7 @@
 sis_discretize(x, cutoff = 0.5, use_percentile = TRUE)
 }
 \arguments{
-\item{x}{Vector of trait values}
+\item{x}{Vector of continuous trait values}
 
 \item{cutoff}{Value to use as cutoff. If percentile, 0.3 = 30th percentile, etc.}
 

@@ -24,7 +24,7 @@ phy <- cleaned$phy
 traits <- cleaned$traits
 trait <- sis_discretize(traits[,1])
 sisters <- sis_get_sisters(phy)
-sisters_comparison <- sis_format_comparison(sisters, trait)
+sisters_comparison <- sis_format_comparison(sisters, trait, phy)
 pairs <- sis_format_simpified(sisters_comparison)
 sis_test(pairs)
 }

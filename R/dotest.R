@@ -1,3 +1,13 @@
+#' Try but returns NA rather than error
+tryNA <- function(code, silent = FALSE) {
+  tryCatch(code, error = function(c) {
+    msg <- conditionMessage(c)
+    if (!silent) message(c)
+    invisible(NA)
+  })
+}
+
+
 #' Compute multiple tests based on sister group comparisons
 #' @param pairs Data.frame with one row per sister group comparison, with one column for number of taxa in state 0, and one column for the number of taxa in state 1.
 #' @param drop_matches Drop sister group comparisons with equal numbers of taxa
@@ -10,7 +20,7 @@
 #' traits <- cleaned$traits
 #' trait <- sis_discretize(traits[,1])
 #' sisters <- sis_get_sisters(phy)
-#' sisters_comparison <- sis_format_comparison(sisters, trait)
+#' sisters_comparison <- sis_format_comparison(sisters, trait, phy)
 #' pairs <- sis_format_simpified(sisters_comparison)
 #' sis_test(pairs)
 sis_test <- function(pairs, drop_matches=TRUE) {
@@ -21,19 +31,68 @@ sis_test <- function(pairs, drop_matches=TRUE) {
   kafermousset_0_derived <- data.frame(m=pairs$ntax.trait0+pairs$ntax.trait1, d=pairs$ntax.trait0)
 
   result <- c(
-    #median.proportion.in.state.zero = median(pairs$ntax.trait0/(pairs$ntax.trait0 + pairs$ntax.trait1)),
-    #median.ntax.diff.zero.minus.one = median(pairs$ntax.trait0 - pairs$ntax.trait1),
-    sign.test = min(1,2*(1-pbinom(length(which(pairs$ntax.trait0<pairs$ntax.trait1)), nrow(pairs), 0.5))),
-    diversity.contrast.ratiolog = ape::diversity.contrast.test(pairs, method = "ratiolog"),
-    diversity.contrast.proportion = ape::diversity.contrast.test(pairs, method = "proportion"),
-    diversity.contrast.difference = ape::diversity.contrast.test(pairs, method = "difference"),
-    diversity.contrast.logratio = ape::diversity.contrast.test(pairs, method = "logratio"),
-    slowinskiguyer.test = ape::slowinskiguyer.test(pairs, detail=FALSE)$P.val,
-    mcconwaysims.test = ape::mcconwaysims.test(pairs)$P.val,
-    richness.yule.test = ape::richness.yule.test(pairs, rep(1e3, nrow(pairs)))$P.val, #following Paradis 2011, setting t to arbitrarily large size
-    kafermousset.1.derived = min(1,scc.test(kafermousset_1_derived)$p.value),
-    kafermousset.0.derived = min(1,scc.test(kafermousset_0_derived)$p.value)
+    number.comparisons.trait0.bigger = length(which(pairs$ntax.trait0>pairs$ntax.trait1)),
+    number.comparisons.trait1.bigger = length(which(pairs$ntax.trait1>pairs$ntax.trait0)),
+    number.comparisons.trait0.equal.trait1 = length(which(pairs$ntax.trait1==pairs$ntax.trait0)),
+    median.proportion.in.state.zero = median(pairs$ntax.trait0/(pairs$ntax.trait0 + pairs$ntax.trait1)),
+    median.ntax.diff.zero.minus.one = median(pairs$ntax.trait0 - pairs$ntax.trait1),
+    pvalue.sign.test = min(1,2*(1-pbinom(length(which(pairs$ntax.trait0<pairs$ntax.trait1)), nrow(pairs), 0.5))),
+    pvalue.diversity.contrast.ratiolog = tryNA(ape::diversity.contrast.test(pairs, method = "ratiolog")),
+    pvalue.diversity.contrast.proportion = tryNA(ape::diversity.contrast.test(pairs, method = "proportion")),
+    pvalue.diversity.contrast.difference = tryNA(ape::diversity.contrast.test(pairs, method = "difference")),
+    pvalue.diversity.contrast.logratio = tryNA(ape::diversity.contrast.test(pairs, method = "logratio")),
+    pvalue.slowinskiguyer.test = tryNA(ape::slowinskiguyer.test(pairs, detail=FALSE)$P.val),
+    pvalue.mcconwaysims.test = tryNA(ape::mcconwaysims.test(pairs)$P.val),
+    pvalue.richness.yule.test = tryNA(ape::richness.yule.test(pairs, rep(1e3, nrow(pairs)))$P.val), #following Paradis 2011, setting t to arbitrarily large size
+    pvalue.kafermousset.1.derived = tryNA(min(1,scc.test(kafermousset_1_derived)$p.value)),
+    pvalue.kafermousset.0.derived = tryNA(min(1,scc.test(kafermousset_0_derived)$p.value))
 
   )
   return(result)
+}
+
+#' Do a test with a single cutoff value
+#' @param cutoff Value to use as cutoff. If percentile, 0.3 = 30th percentile, etc.
+#' @param x Vector of continuous trait values
+#' @param use_percentile If TRUE, use cutoff as percentile
+#' @param phy A phylo object
+#' @param sisters Data.frame from sis_get_sisters()
+#' @return vector of outpout from sis_test()
+sis_iterate_single_run <- function(cutoff, x, use_percentile=TRUE, phy, sisters=sis_get_sisters(phy)) {
+  trait <- sis_discretize(x, cutoff=cutoff, use_percentile=use_percentile)
+  comparison <- sis_format_simpified(sis_format_comparison(sisters, trait, phy))
+  test <- sis_test(comparison)
+  test["ntax0"] <- as.numeric(length(which(trait==0)))
+  test["ntax1"] <- as.numeric(length(which(trait==1)))
+  if(use_percentile) {
+    absolute_cutoff <- quantile(x, probs=cutoff, na.rm=TRUE)
+  } else {
+    absolute_cutoff <- cutoff
+  }
+  test["absolute.cutoff"] <- as.numeric(unname(absolute_cutoff))
+  return(test)
+}
+
+#' Iterate tests trying a variety of cutoff values
+#'
+#' This is a way of looking at the effect of using different cutoff values on the sister group comparisons. Do clades with a higher value have more species than their sister, and is this robust to what cutoff value is used? At the extremes (the min and max value) this is almost certainly not the case, unless you have many taxa with the same maximum or minimum values.
+#'
+#' This is a very dangerous function to use. Someone could use this to find the perfect cutoff value to find a significant result. This is one of the many forms of p-hacking. \strong{So, if you use this function and then report on significance using some cutoff, you MUST mention somewhere in your manuscript that you've tried a variety of cutoff values, and include a discussion of why you used a particular cutoff.} Ideally, you should have some biological intuition about what cutoff value is reasonable before using this function, as well.
+#' @param x Vector of continuous trait values
+#' @param nsteps Number of thresholds to try
+#' @param phy A phylo object
+#' @param sisters Data.frame from sis_get_sisters()
+#' @return A data.frame, where each column is for a different cutoff percentile and every row is a number returned from sis_test()
+#' @export
+#' @examples
+#' data(geospiza, package="geiger")
+#' cleaned <- sis_clean(geospiza$phy, geospiza$dat)
+#' phy <- cleaned$phy
+#' trait.x <- cleaned$traits[,1]
+#' sis_iterate(trait.x, phy=phy)
+sis_iterate <- function(x, nsteps=11, phy, sisters=sis_get_sisters(phy)) {
+  cutoffs <- seq(from=0, to=1, length.out=nsteps)
+  results <- sapply(cutoffs, sis_iterate_single_run, x=x, phy=phy, sisters=sisters)
+  colnames(results) <- cutoffs
+  return(results)
 }
