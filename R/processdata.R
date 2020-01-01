@@ -104,7 +104,7 @@ sis_find_taxon <- function(taxon, sisters) {
 #' phy <- cleaned$phy
 #' traits <- cleaned$traits
 #' trait <- sis_discretize(traits[,1])
-#' sisters <- sis_get_sisters(phy)
+#' sisters <- sis_get_sisters(phy, ncores=2)
 #' sisters_comparison <- sis_format_comparison(sisters, trait, phy)
 #' print(sisters_comparison)
 sis_format_comparison <- function(sisters, trait, phy) {

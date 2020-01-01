@@ -1,12 +1,14 @@
-# This is from Käfer and Mousset, 2014, https://doi.org/10.1093/sysbio/syu024.
-# It is copied directly from their CC0 licensed code on Dryad:
-# Käfer, Jos; Mousset, Sylvain (2014), Data from: Standard sister clade comparison fails when testing derived character states, v2, Dryad, Dataset, https://doi.org/10.5061/dryad.jd8vg
 
-# I've changed their core function (scc.test) to work on a simper data.frame rather than whatever list structure was being used originally (the example data files are no longer available online).
+
+# This is from K\\u00e4fer and Mousset, 2014, https://doi.org/10.1093/sysbio/syu024.
+# It is copied directly from their CC0 licensed code on Dryad:
+# K\\u00e4fer, Jos; Mousset, Sylvain (2014), Data from: Standard sister clade comparison fails when testing derived character states, v2, Dryad, Dataset, https://doi.org/10.5061/dryad.jd8vg
+
+# BCO: I've changed their core function (scc.test) to work on a simper data.frame rather than whatever list structure was being used originally (the example data files are no longer available online). I have also had to change the a with umlaut in Kafer with \\u00e4 to comply with R's guidelines, unfortunately.
 
 
 #################################################
-###### Equations (Käfer and Mousset, 2014) ######
+###### Equations (K\\u00e4fer and Mousset, 2014) ######
 #################################################
 
 # Conditional probability of observing K=k, given M=m
@@ -100,7 +102,7 @@ SG.test <- function(dataset, lower.tail=FALSE, correct=FALSE) {
     pcorr <- stats::pchisq(x2corr, lower.tail=FALSE, df=2*length(pvalcorr))
     result <- matrix(data=c(x2org, x2corr, porg, pcorr), nrow=2, byrow=FALSE)
     colnames(result) <- c("X2","p.value")
-    rownames(result) <- c("Cladogenetic (Slowinski and Guyer)","Anagenetic (Käfer and Mousset)")
+    rownames(result) <- c("Cladogenetic (Slowinski and Guyer)","Anagenetic (K\\u00e4fer and Mousset)")
   } else {
     result <- matrix(data=c(x2org, porg), ncol=2, byrow=FALSE)
     colnames(result) <- c("X2","p.value")
@@ -110,10 +112,10 @@ SG.test <- function(dataset, lower.tail=FALSE, correct=FALSE) {
 }
 
 ########################################################################
-## Sister Clade Comparison Test suggested in Käfer and Mousset, 2014. ##
+## Sister Clade Comparison Test suggested in K\\u00e4fer and Mousset, 2014. ##
 ########################################################################
 
-## Käfer and Mousset Test for Sister Clade Comparison
+## K\\u00e4fer and Mousset Test for Sister Clade Comparison
 ## iter  : number of resamplings
 scc.test <- function(dataset, iter=10000, alternative="two.sided") {
 

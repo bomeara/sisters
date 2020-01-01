@@ -8,7 +8,7 @@ Authors@R:
            email = "omeara.brian@gmail.com",
            comment = c(ORCID = "0000-0002-0337-5997"))
 Description: Sister groups are pairs of clades that differ in a key character. If that character leads to higher diversification rate, then clades with that trait should have more species than their sisters. There are several tests to see if this is the case, ranging from a basic sign test to more complex ones (many implemented in the ape package). This package can identify sister groups that differ in a binary trait and perform all the relevant tests. It can also discretize a continuous trait into a binary "high" vs "low" state.
-License: GPL 3.0
+License: GPL-3
 Imports:
     ape,
     geiger,
