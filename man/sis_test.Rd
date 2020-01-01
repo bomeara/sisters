@@ -4,12 +4,14 @@
 \alias{sis_test}
 \title{Compute multiple tests based on sister group comparisons}
 \usage{
-sis_test(pairs, drop_matches = TRUE)
+sis_test(pairs, drop_matches = TRUE, warn = TRUE)
 }
 \arguments{
 \item{pairs}{Data.frame with one row per sister group comparison, with one column for number of taxa in state 0, and one column for the number of taxa in state 1.}
 
 \item{drop_matches}{Drop sister group comparisons with equal numbers of taxa}
+
+\item{warn}{Some tests will fail with warnings (too few sister groups or other reasons). Setting this to FALSE will suppress those}
 }
 \value{
 A vector with the results of many tests, as well as summary data for the comparisons

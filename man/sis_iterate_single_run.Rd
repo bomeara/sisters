@@ -9,7 +9,8 @@ sis_iterate_single_run(
   x,
   use_percentile = TRUE,
   phy,
-  sisters = sis_get_sisters(phy)
+  sisters = sis_get_sisters(phy),
+  warn = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ sis_iterate_single_run(
 \item{phy}{A phylo object}
 
 \item{sisters}{Data.frame from sis_get_sisters()}
+
+\item{warn}{Some tests will fail with warnings (too few sister groups or other reasons). Setting this to FALSE will suppress those}
 }
 \value{
 vector of outpout from sis_test()

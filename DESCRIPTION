@@ -1,21 +1,21 @@
 Package: sisters
-Title: What the Package Does (One Line, Title Case)
+Title: Runs various sister group comparisons to test hypotheses about diversification
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
+Authors@R:
+    person(given = "Brian",
+           family = "O'Meara",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
-Imports: 
+           email = "omeara.brian@gmail.com",
+           comment = c(ORCID = "0000-0002-0337-5997"))
+Description: Sister groups are pairs of clades that differ in a key character. If that character leads to higher diversification rate, then clades with that trait should have more species than their sisters. There are several tests to see if this is the case, ranging from a basic sign test to more complex ones (many implemented in the ape package). This package can identify sister groups that differ in a binary trait and perform all the relevant tests. It can also discretize a continuous trait into a binary "high" vs "low" state.
+License: GPL 3.0
+Imports:
     ape,
     geiger,
     parallel,
     pbapply,
     phangorn
-Suggests: 
+Suggests:
     covr,
     pkgdown,
     testthat (>= 2.1.0)

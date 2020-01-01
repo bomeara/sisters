@@ -11,6 +11,7 @@ tryNA <- function(code, silent = FALSE) {
 #' Compute multiple tests based on sister group comparisons
 #' @param pairs Data.frame with one row per sister group comparison, with one column for number of taxa in state 0, and one column for the number of taxa in state 1.
 #' @param drop_matches Drop sister group comparisons with equal numbers of taxa
+#' @param warn Some tests will fail with warnings (too few sister groups or other reasons). Setting this to FALSE will suppress those
 #' @return A vector with the results of many tests, as well as summary data for the comparisons
 #' @export
 #' @examples
@@ -23,7 +24,12 @@ tryNA <- function(code, silent = FALSE) {
 #' sisters_comparison <- sis_format_comparison(sisters, trait, phy)
 #' pairs <- sis_format_simpified(sisters_comparison)
 #' sis_test(pairs)
-sis_test <- function(pairs, drop_matches=TRUE) {
+sis_test <- function(pairs, drop_matches=TRUE, warn=TRUE) {
+  if(!warn) {
+    oldw <- getOption("warn")
+    options(warn = -1)
+  }
+  equal_count <- length(which(pairs$ntax.trait1==pairs$ntax.trait0))
   if(drop_matches) {
     pairs <- pairs[which(pairs$ntax.trait0!=pairs$ntax.trait1),]
   }
@@ -33,7 +39,7 @@ sis_test <- function(pairs, drop_matches=TRUE) {
   result <- c(
     number.comparisons.trait0.bigger = length(which(pairs$ntax.trait0>pairs$ntax.trait1)),
     number.comparisons.trait1.bigger = length(which(pairs$ntax.trait1>pairs$ntax.trait0)),
-    number.comparisons.trait0.equal.trait1 = length(which(pairs$ntax.trait1==pairs$ntax.trait0)),
+    number.comparisons.trait0.equal.trait1 = equal_count,
     median.proportion.in.state.zero = median(pairs$ntax.trait0/(pairs$ntax.trait0 + pairs$ntax.trait1)),
     median.ntax.diff.zero.minus.one = median(pairs$ntax.trait0 - pairs$ntax.trait1),
     pvalue.sign.test = min(1,2*(1-pbinom(length(which(pairs$ntax.trait0<pairs$ntax.trait1)), nrow(pairs), 0.5))),
@@ -48,6 +54,9 @@ sis_test <- function(pairs, drop_matches=TRUE) {
     pvalue.kafermousset.0.derived = tryNA(min(1,scc.test(kafermousset_0_derived)$p.value))
 
   )
+  if(!warn) {
+    options(warn = oldw )
+  }
   return(result)
 }
 
@@ -57,11 +66,12 @@ sis_test <- function(pairs, drop_matches=TRUE) {
 #' @param use_percentile If TRUE, use cutoff as percentile
 #' @param phy A phylo object
 #' @param sisters Data.frame from sis_get_sisters()
+#' @param warn Some tests will fail with warnings (too few sister groups or other reasons). Setting this to FALSE will suppress those
 #' @return vector of outpout from sis_test()
-sis_iterate_single_run <- function(cutoff, x, use_percentile=TRUE, phy, sisters=sis_get_sisters(phy)) {
+sis_iterate_single_run <- function(cutoff, x, use_percentile=TRUE, phy, sisters=sis_get_sisters(phy), warn=FALSE) {
   trait <- sis_discretize(x, cutoff=cutoff, use_percentile=use_percentile)
   comparison <- sis_format_simpified(sis_format_comparison(sisters, trait, phy))
-  test <- sis_test(comparison)
+  test <- sis_test(comparison, warn=warn)
   test["ntax0"] <- as.numeric(length(which(trait==0)))
   test["ntax1"] <- as.numeric(length(which(trait==1)))
   if(use_percentile) {
