@@ -103,7 +103,9 @@ sis_iterate_single_run <- function(cutoff, x, use_percentile=TRUE, phy, sisters=
 #' trait.x <- cleaned$traits[,1]
 #' sis_iterate(trait.x, phy=phy)
 sis_iterate <- function(x, nsteps=11, phy, sisters=sis_get_sisters(phy)) {
-  cutoffs <- seq(from=0, to=1, length.out=nsteps)
+  cutoffs <- seq(from=0, to=1, length.out=nsteps+2)
+  cutoffs <- cutoffs[-1] #get rid of extreme
+  cutoffs <- cutoffs[-length(cutoffs)] #get rid of extreme
   results <- sapply(cutoffs, sis_iterate_single_run, x=x, phy=phy, sisters=sisters)
   colnames(results) <- cutoffs
   return(results)
