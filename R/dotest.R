@@ -44,7 +44,7 @@ sis_test <- function(pairs, drop_matches=TRUE, warn=TRUE) {
     number.comparisons.trait0.equal.trait1 = equal_count,
     median.proportion.in.state.zero = stats::median(pairs$ntax.trait0/(pairs$ntax.trait0 + pairs$ntax.trait1)),
     median.ntax.diff.zero.minus.one = stats::median(pairs$ntax.trait0 - pairs$ntax.trait1),
-    pvalue.sign.test = min(1,2*(1-stats::pbinom(length(which(pairs$ntax.trait0<pairs$ntax.trait1)), nrow(pairs), 0.5))),
+    pvalue.sign.test = stats::binom.test(x=length(which(pairs$ntax.trait0<pairs$ntax.trait1)), n=length(which(pairs$ntax.trait0!=pairs$ntax.trait1)), alternative="two")$p.value,
     pvalue.diversity.contrast.ratiolog = tryNA(ape::diversity.contrast.test(pairs, method = "ratiolog")),
     pvalue.diversity.contrast.proportion = tryNA(ape::diversity.contrast.test(pairs, method = "proportion")),
     pvalue.diversity.contrast.difference = tryNA(ape::diversity.contrast.test(pairs, method = "difference")),
