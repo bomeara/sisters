@@ -35,6 +35,9 @@ sis_test <- function(pairs, drop_matches=TRUE, warn=TRUE) {
   if(drop_matches) {
     pairs <- pairs[which(pairs$ntax.trait0!=pairs$ntax.trait1),]
   }
+  if(nrow(pairs)==0) {
+	  warning("No pairs to compare (often after deleting ones with equal diversity)")
+  }
   kafermousset_1_derived <- data.frame(m=pairs$ntax.trait0+pairs$ntax.trait1, d=pairs$ntax.trait1)
   kafermousset_0_derived <- data.frame(m=pairs$ntax.trait0+pairs$ntax.trait1, d=pairs$ntax.trait0)
 
@@ -44,7 +47,7 @@ sis_test <- function(pairs, drop_matches=TRUE, warn=TRUE) {
     number.comparisons.trait0.equal.trait1 = equal_count,
     median.proportion.in.state.zero = stats::median(pairs$ntax.trait0/(pairs$ntax.trait0 + pairs$ntax.trait1)),
     median.ntax.diff.zero.minus.one = stats::median(pairs$ntax.trait0 - pairs$ntax.trait1),
-    pvalue.sign.test = stats::binom.test(x=length(which(pairs$ntax.trait0<pairs$ntax.trait1)), n=length(which(pairs$ntax.trait0!=pairs$ntax.trait1)), alternative="two")$p.value,
+    pvalue.sign.test = tryNA(stats::binom.test(x=length(which(pairs$ntax.trait0<pairs$ntax.trait1)), n=length(which(pairs$ntax.trait0!=pairs$ntax.trait1)), alternative="two")$p.value, silent=TRUE),
     pvalue.diversity.contrast.ratiolog = tryNA(ape::diversity.contrast.test(pairs, method = "ratiolog")),
     pvalue.diversity.contrast.proportion = tryNA(ape::diversity.contrast.test(pairs, method = "proportion")),
     pvalue.diversity.contrast.difference = tryNA(ape::diversity.contrast.test(pairs, method = "difference")),
@@ -67,13 +70,14 @@ sis_test <- function(pairs, drop_matches=TRUE, warn=TRUE) {
 #' @param x Vector of continuous trait values
 #' @param use_percentile If TRUE, use cutoff as percentile
 #' @param phy A phylo object
-#' @param sisters Data.frame from sis_get_sisters()
+#' @param sisters Data.frame from sis_get_sisters() 
+#' @param drop_matches Drop sister group comparisons with equal numbers of taxa
 #' @param warn Some tests will fail with warnings (too few sister groups or other reasons). Setting this to FALSE will suppress those
-#' @return vector of outpout from sis_test()
-sis_iterate_single_run <- function(cutoff, x, use_percentile=TRUE, phy, sisters=sis_get_sisters(phy), warn=FALSE) {
+#' @return vector of output from sis_test()
+sis_iterate_single_run <- function(cutoff, x, use_percentile=TRUE, phy, sisters=sis_get_sisters(phy), drop_matches=TRUE, warn=FALSE) {
   trait <- sis_discretize(x, cutoff=cutoff, use_percentile=use_percentile)
   comparison <- sis_format_simpified(sis_format_comparison(sisters, trait, phy))
-  test <- sis_test(comparison, warn=warn)
+  test <- sis_test(comparison, warn=warn, drop_matches=drop_matches)
   test["ntax0"] <- as.numeric(length(which(trait==0)))
   test["ntax1"] <- as.numeric(length(which(trait==1)))
   if(use_percentile) {
@@ -94,19 +98,21 @@ sis_iterate_single_run <- function(cutoff, x, use_percentile=TRUE, phy, sisters=
 #' @param nsteps Number of thresholds to try
 #' @param phy A phylo object
 #' @param sisters Data.frame from sis_get_sisters()
+#' @param drop_matches Drop sister group comparisons with equal numbers of taxa
+
 #' @return A data.frame, where each column is for a different cutoff percentile and every row is a number returned from sis_test()
 #' @export
 #' @examples
 #' data(geospiza, package="geiger")
 #' cleaned <- sis_clean(geospiza$phy, geospiza$dat)
 #' phy <- cleaned$phy
-#' trait.x <- cleaned$traits[,1]
-#' sis_iterate(trait.x, phy=phy)
-sis_iterate <- function(x, nsteps=11, phy, sisters=sis_get_sisters(phy)) {
+#' trait <- cleaned$traits[,1]
+#' sis_iterate(trait, phy=phy)
+sis_iterate <- function(x, nsteps=11, phy, sisters=sis_get_sisters(phy), drop_matches=TRUE) {
   cutoffs <- seq(from=0, to=1, length.out=nsteps+2)
   cutoffs <- cutoffs[-1] #get rid of extreme
   cutoffs <- cutoffs[-length(cutoffs)] #get rid of extreme
-  results <- sapply(cutoffs, sis_iterate_single_run, x=x, phy=phy, sisters=sisters)
+  results <- sapply(cutoffs, sis_iterate_single_run, x=x, phy=phy, sisters=sisters, drop_matches=drop_matches)
   colnames(results) <- cutoffs
   return(results)
 }

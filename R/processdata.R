@@ -63,10 +63,10 @@ sis_get_sister_pair <- function(node, phy) {
 #' For each node, return the vector of tip numbers for taxa on each side. It is sorted so that sister groups with fewer taxa are arranged at the top.
 #'
 #' @param phy A phylo object
-#' @param ncores How many cores to use to run this in parallel
+#' @param ncores How many cores to use to run this in parallel. I suggest parallel::detectCores(), but set it at 2 for a default (otherwise CRAN checks fail)
 #' @return a data.frame with the node numbers and columns with the tip labels of the two descendant clades, plus additional info on the sister groups
 #' @export
-sis_get_sisters <- function(phy, ncores=parallel::detectCores()) {
+sis_get_sisters <- function(phy, ncores=2) {
   result <- do.call(rbind.data.frame,pbapply::pblapply(unique(phy$edge[,1]), sis_get_sister_pair, phy=phy, cl=ncores))
   result$ntax.left <- sapply(result$left, length)
   result$ntax.right <- sapply(result$right, length)

@@ -4,7 +4,13 @@
 \alias{sis_iterate}
 \title{Iterate tests trying a variety of cutoff values}
 \usage{
-sis_iterate(x, nsteps = 11, phy, sisters = sis_get_sisters(phy))
+sis_iterate(
+  x,
+  nsteps = 11,
+  phy,
+  sisters = sis_get_sisters(phy),
+  drop_matches = TRUE
+)
 }
 \arguments{
 \item{x}{Vector of continuous trait values}
@@ -14,6 +20,8 @@ sis_iterate(x, nsteps = 11, phy, sisters = sis_get_sisters(phy))
 \item{phy}{A phylo object}
 
 \item{sisters}{Data.frame from sis_get_sisters()}
+
+\item{drop_matches}{Drop sister group comparisons with equal numbers of taxa}
 }
 \value{
 A data.frame, where each column is for a different cutoff percentile and every row is a number returned from sis_test()
@@ -28,6 +36,6 @@ This is a very dangerous function to use. Someone could use this to find the per
 data(geospiza, package="geiger")
 cleaned <- sis_clean(geospiza$phy, geospiza$dat)
 phy <- cleaned$phy
-trait.x <- cleaned$traits[,1]
-sis_iterate(trait.x, phy=phy)
+trait <- cleaned$traits[,1]
+sis_iterate(trait, phy=phy)
 }

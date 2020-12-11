@@ -10,6 +10,7 @@ sis_iterate_single_run(
   use_percentile = TRUE,
   phy,
   sisters = sis_get_sisters(phy),
+  drop_matches = TRUE,
   warn = FALSE
 )
 }
@@ -24,10 +25,12 @@ sis_iterate_single_run(
 
 \item{sisters}{Data.frame from sis_get_sisters()}
 
+\item{drop_matches}{Drop sister group comparisons with equal numbers of taxa}
+
 \item{warn}{Some tests will fail with warnings (too few sister groups or other reasons). Setting this to FALSE will suppress those}
 }
 \value{
-vector of outpout from sis_test()
+vector of output from sis_test()
 }
 \description{
 Do a test with a single cutoff value

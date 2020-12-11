@@ -4,12 +4,12 @@
 \alias{sis_get_sisters}
 \title{Get sister groups for all internal nodes}
 \usage{
-sis_get_sisters(phy, ncores = parallel::detectCores())
+sis_get_sisters(phy, ncores = 2)
 }
 \arguments{
 \item{phy}{A phylo object}
 
-\item{ncores}{How many cores to use to run this in parallel}
+\item{ncores}{How many cores to use to run this in parallel. I suggest parallel::detectCores(), but set it at 2 for a default (otherwise CRAN checks fail)}
 }
 \value{
 a data.frame with the node numbers and columns with the tip labels of the two descendant clades, plus additional info on the sister groups
